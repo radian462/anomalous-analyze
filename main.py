@@ -1,8 +1,13 @@
-import requests
-
+import time
+from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+
+import requests
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
+from tqdm import tqdm
 
 @dataclass
 class AOinfo:
@@ -93,9 +98,11 @@ def write_ranking(ws: Worksheet, infos: list[AOinfo]) -> int:
 
 if __name__ == "__main__":
     with requests.Session() as session:
-        infos = fetch_all(session, rating=0)
+        infos = fetch_all(session, rating=1)
 
     wb = load_workbook("templete.xlsx")
     n = write_ranking(wb["ランキング"], infos)
-    wb.save("output/anomalous.xlsx")
+    out = Path("output")
+    out.mkdir(exist_ok=True)
+    wb.save(out / "anomalous.xlsx")
     print(f"{len(infos)}件 / {n}人")
